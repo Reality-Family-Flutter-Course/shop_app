@@ -1,13 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:shop_app/providers/product.dart';
 
-class _CartItem {
+class CartItem {
   final String id;
   final Product product;
   final int quantity;
   late final double price;
 
-  _CartItem({
+  CartItem({
     required this.id,
     required this.product,
     required this.quantity,
@@ -17,9 +17,9 @@ class _CartItem {
 }
 
 class Cart with ChangeNotifier {
-  final Map<String, _CartItem> _order = {};
+  final Map<String, CartItem> _order = {};
 
-  Map<String, _CartItem> get order => _order;
+  Map<String, CartItem> get order => _order;
 
   int get itemCount => _order.length;
 
@@ -37,7 +37,7 @@ class Cart with ChangeNotifier {
     if (_order.containsKey(product.id)) {
       _order.update(
         product.id,
-        (cartItem) => _CartItem(
+        (cartItem) => CartItem(
           id: cartItem.id,
           product: product,
           quantity: cartItem.quantity + 1,
@@ -46,7 +46,7 @@ class Cart with ChangeNotifier {
     } else {
       _order.putIfAbsent(
         product.id,
-        () => _CartItem(
+        () => CartItem(
           id: DateTime.now().toString(),
           product: product,
           quantity: 1,
@@ -58,6 +58,11 @@ class Cart with ChangeNotifier {
 
   void removeItem(String productId) {
     _order.remove(productId);
+    notifyListeners();
+  }
+
+  void clear() {
+    _order.clear();
     notifyListeners();
   }
 }
