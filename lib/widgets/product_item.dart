@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shop_app/providers/cart.dart';
 import 'package:shop_app/providers/product.dart';
 
 import '../screens/product_detail_screen.dart';
 
 class ProductItem extends StatelessWidget {
-  //final String id;
-  //final String title;
-  //final String imageUrl;
-
-  //const ProductItem(this.id, this.title, this.imageUrl, {Key? key})
-  //    : super(key: key);
+  const ProductItem({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final product = Provider.of<Product>(
+      context,
+      listen: false,
+    );
+
+    final cart = Provider.of<Cart>(
       context,
       listen: false,
     );
@@ -55,7 +56,9 @@ class ProductItem extends StatelessWidget {
             icon: const Icon(
               Icons.shopping_cart,
             ),
-            onPressed: () {},
+            onPressed: () {
+              cart.addProductToCart(product);
+            },
             color: Theme.of(context).colorScheme.secondary,
           ),
         ),
