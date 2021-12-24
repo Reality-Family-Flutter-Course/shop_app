@@ -58,6 +58,21 @@ class ProductItem extends StatelessWidget {
             ),
             onPressed: () {
               cart.addProductToCart(product);
+              ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text(
+                    "Товар добавлен в корзину!",
+                  ),
+                  duration: const Duration(seconds: 2),
+                  action: SnackBarAction(
+                    label: "ОТМЕНА",
+                    onPressed: () {
+                      cart.removeSingleProduct(product.id);
+                    },
+                  ),
+                ),
+              );
             },
             color: Theme.of(context).colorScheme.secondary,
           ),
