@@ -18,7 +18,18 @@ class _EditProductScreenState extends State<EditProductScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(10),
-        child: 
+        child: Form(
+          child: ListView(
+            children: [
+              TextFormField(
+                decoration: const InputDecoration(
+                  labelText: "Название",
+                ),
+                textInputAction: TextInputAction.next,
+              )
+            ],
+          ),
+        ),
       ),
     );
   }
