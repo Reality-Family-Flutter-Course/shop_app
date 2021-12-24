@@ -35,7 +35,9 @@ class _EditProductScreenState extends State<EditProductScreen> {
   }
 
   void _saveProduct() {
-    _key.currentState!.save();
+    if (_key.currentState!.validate()) {
+      _key.currentState!.save();
+    }
   }
 
   @override
@@ -65,6 +67,12 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 textInputAction: TextInputAction.next,
                 onFieldSubmitted: (value) {
                   FocusScope.of(context).requestFocus(_priceFocusNode);
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Введите пожалуйста данные";
+                  }
+                  return null;
                 },
                 onSaved: (newValue) {
                   _newProduct = Product(
