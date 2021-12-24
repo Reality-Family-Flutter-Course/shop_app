@@ -70,7 +70,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 },
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return "Введите пожалуйста данные";
+                    return "Введите пожалуйста название";
                   }
                   return null;
                 },
@@ -95,6 +95,18 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 onFieldSubmitted: (value) {
                   FocusScope.of(context).requestFocus(_descriptionFocusNode);
                 },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Введите пожалуйста цену";
+                  }
+                  if (double.tryParse(value) == null) {
+                    return "Введите пожалуйста корректное значение";
+                  }
+                  if (double.parse(value) <= 0) {
+                    return "Введите пожалуйста корректную сумму";
+                  }
+                  return null;
+                },
                 onSaved: (newValue) {
                   _newProduct = Product(
                     id: _newProduct.id,
@@ -112,6 +124,15 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 maxLines: 3,
                 keyboardType: TextInputType.multiline,
                 focusNode: _descriptionFocusNode,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Введите пожалуйста описание";
+                  }
+                  if (value.length < 10) {
+                    return "Описание должно быть более 10 символов";
+                  }
+                  return null;
+                },
                 onSaved: (newValue) {
                   _newProduct = Product(
                     id: _newProduct.id,
@@ -154,16 +175,40 @@ class _EditProductScreenState extends State<EditProductScreen> {
                   ),
                   Expanded(
                     child: TextFormField(
-                      decoration:
-                          const InputDecoration(labelText: "URL фотографии"),
+                      decoration: const InputDecoration(
+                          labelText: "Ссылка на фотографию"),
                       keyboardType: TextInputType.url,
                       textInputAction: TextInputAction.done,
                       controller: _imageURLController,
                       onEditingComplete: () {
+                        if ((_imageURLController.text.isEmpty) ||
+                            (!_imageURLController.text.startsWith("http://") &&
+                                !_imageURLController.text
+                                    .startsWith("https://")) ||
+                            (!_imageURLController.text.endsWith(".png") &&
+                                !_imageURLController.text.endsWith(".jpg") &&
+                                !_imageURLController.text.endsWith(".jpeg"))) {
+                          return;
+                        }
                         setState(() {});
                       },
                       onFieldSubmitted: (_) {
                         _saveProduct();
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Введите пожалуйста ссылку фотографии";
+                        }
+                        if (!value.startsWith("http://") &&
+                            !value.startsWith("https://")) {
+                          return "Введите пожалуйста корректную ссылку на фотографию";
+                        }
+                        if (!value.endsWith(".png") &&
+                            !value.endsWith(".jpg") &&
+                            !value.endsWith(".jpeg")) {
+                          return "Введите пожалуйста корректную ссылку на фотографию";
+                        }
+                        return null;
                       },
                       onSaved: (newValue) {
                         _newProduct = Product(
