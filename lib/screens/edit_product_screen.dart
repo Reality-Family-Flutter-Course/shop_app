@@ -20,6 +20,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
         padding: const EdgeInsets.all(10),
         child: Form(
           child: ListView(
+            // почему не Column
             children: [
               TextFormField(
                 decoration: const InputDecoration(
