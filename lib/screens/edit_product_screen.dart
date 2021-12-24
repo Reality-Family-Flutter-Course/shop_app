@@ -13,10 +13,13 @@ class _EditProductScreenState extends State<EditProductScreen> {
   final _priceFocusNode = FocusNode();
   final _descriptionFocusNode = FocusNode();
 
+  final _imageURLController = TextEditingController();
+
   @override
   void dispose() {
     _priceFocusNode.dispose();
     _descriptionFocusNode.dispose();
+    _imageURLController.dispose();
     super.dispose();
   }
 
@@ -60,6 +63,50 @@ class _EditProductScreenState extends State<EditProductScreen> {
                 keyboardType: TextInputType.multiline,
                 focusNode: _descriptionFocusNode,
               ),
+              Row(
+                children: [
+                  Container(
+                    width: 100,
+                    height: 100,
+                    margin: const EdgeInsets.only(
+                      top: 10,
+                      right: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        width: 1,
+                        color: Colors.grey,
+                      ),
+                    ),
+                    child: _imageURLController.text.isEmpty
+                        ? Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: const [
+                              Text(
+                                "Введите путь до фотографии",
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          )
+                        : Image.network(
+                            _imageURLController.text,
+                            fit: BoxFit.cover,
+                          ),
+                  ),
+                  Expanded(
+                    child: TextFormField(
+                      decoration:
+                          const InputDecoration(labelText: "URL фотографии"),
+                      keyboardType: TextInputType.url,
+                      textInputAction: TextInputAction.done,
+                      controller: _imageURLController,
+                      onEditingComplete: () {
+                        setState(() {});
+                      },
+                    ),
+                  ),
+                ],
+              )
             ],
           ),
         ),
