@@ -21,12 +21,13 @@ class _EditProductScreenState extends State<EditProductScreen> {
   final _key = GlobalKey<FormState>();
 
   Product _newProduct = Product(
-    id: "",
+    id: null,
     title: "",
     description: "",
     price: -1,
     imageUrl: "",
   );
+  var _isInit = true;
 
   @override
   void dispose() {
@@ -36,11 +37,30 @@ class _EditProductScreenState extends State<EditProductScreen> {
     super.dispose();
   }
 
+  @override
+  void didChangeDependencies() {
+    if (_isInit) {
+      final productId = ModalRoute.of(context)!.settings.arguments as String?;
+      if (productId != null) {
+        _newProduct =
+            Provider.of<Products>(context, listen: false).findById(productId);
+        _imageURLController.text = _newProduct.imageUrl;
+      }
+    }
+    _isInit = false;
+    super.didChangeDependencies();
+  }
+
   void _saveProduct() {
     if (_key.currentState!.validate()) {
       _key.currentState!.save();
 
-      Provider.of<Products>(context, listen: false).addProduct(_newProduct);
+      if (_newProduct.id == null) {
+        Provider.of<Products>(context, listen: false).addProduct(_newProduct);
+      } else {
+        Provider.of<Products>(context, listen: false)
+            .updateProduct(_newProduct.id!, _newProduct);
+      }
       Navigator.of(context).pop();
     }
   }
@@ -66,6 +86,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
           child: ListView(
             children: [
               TextFormField(
+                initialValue: _newProduct.title,
                 decoration: const InputDecoration(
                   labelText: "Название",
                 ),
@@ -86,10 +107,13 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     description: _newProduct.description,
                     price: _newProduct.price,
                     imageUrl: _newProduct.imageUrl,
+                    isFavorite: _newProduct.isFavorite,
                   );
                 },
               ),
               TextFormField(
+                initialValue:
+                    _newProduct.price < 1 ? "" : _newProduct.price.toString(),
                 decoration: const InputDecoration(
                   labelText: "Цена",
                 ),
@@ -119,10 +143,12 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     description: _newProduct.description,
                     price: double.parse(newValue!),
                     imageUrl: _newProduct.imageUrl,
+                    isFavorite: _newProduct.isFavorite,
                   );
                 },
               ),
               TextFormField(
+                initialValue: _newProduct.description,
                 decoration: const InputDecoration(
                   labelText: "Описание",
                 ),
@@ -145,6 +171,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                     description: newValue!,
                     price: _newProduct.price,
                     imageUrl: _newProduct.imageUrl,
+                    isFavorite: _newProduct.isFavorite,
                   );
                 },
               ),
@@ -197,9 +224,6 @@ class _EditProductScreenState extends State<EditProductScreen> {
                         }
                         setState(() {});
                       },
-                      onFieldSubmitted: (_) {
-                        _saveProduct();
-                      },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Введите пожалуйста ссылку фотографии";
@@ -222,6 +246,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
                           description: _newProduct.description,
                           price: _newProduct.price,
                           imageUrl: newValue!,
+                          isFavorite: _newProduct.isFavorite,
                         );
                       },
                     ),
