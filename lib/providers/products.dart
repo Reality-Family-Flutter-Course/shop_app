@@ -143,7 +143,10 @@ class Products with ChangeNotifier {
 
     try {
       final response = await http.get(Uri.parse(url));
-      final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      final extractedData = json.decode(response.body) as Map<String, dynamic>?;
+      if (extractedData == null) {
+        return;
+      }
       List<Product> loadedProducts = [];
       extractedData.forEach((prodID, prodData) {
         loadedProducts.add(Product(
@@ -162,5 +165,32 @@ class Products with ChangeNotifier {
       print(error);
       throw error;
     }
+  }
+
+  static Future<Product?> fetchProduct(String id) async {
+    final url =
+        "https://flutter-synergy-store-default-rtdb.europe-west1.firebasedatabase.app/products/$id.json";
+
+    Product? loadedProduct;
+
+    try {
+      final response = await http.get(Uri.parse(url));
+      final extractedData = json.decode(response.body) as Map<String, dynamic>;
+      extractedData.forEach((prodID, prodData) {
+        loadedProduct = Product(
+          id: prodID,
+          title: prodData["title"],
+          description: prodData["description"],
+          imageUrl: prodData["imageUrl"],
+          price: prodData["price"],
+          isFavorite: prodData["isFavorite"],
+        );
+      });
+    } catch (error) {
+      print(error);
+      throw error;
+    }
+
+    return loadedProduct;
   }
 }

@@ -3,17 +3,28 @@ import 'package:shop_app/providers/product.dart';
 
 class CartItem {
   final String id;
-  final Product product;
+  final String productID;
+  final String productTitle;
   final int quantity;
   late final double price;
 
   CartItem({
     required this.id,
-    required this.product,
+    required this.productID,
+    required this.productTitle,
+    required double productPrice,
     required this.quantity,
   }) {
-    price = product.price * quantity;
+    price = productPrice * quantity;
   }
+
+  CartItem.priced({
+    required this.id,
+    required this.productID,
+    required this.productTitle,
+    required this.price,
+    required this.quantity,
+  });
 }
 
 class Cart with ChangeNotifier {
@@ -39,7 +50,9 @@ class Cart with ChangeNotifier {
         product.id!,
         (cartItem) => CartItem(
           id: cartItem.id,
-          product: product,
+          productID: product.id!,
+          productTitle: product.title,
+          productPrice: product.price,
           quantity: cartItem.quantity + 1,
         ),
       );
@@ -48,7 +61,9 @@ class Cart with ChangeNotifier {
         product.id!,
         () => CartItem(
           id: DateTime.now().toString(),
-          product: product,
+          productID: product.id!,
+          productTitle: product.title,
+          productPrice: product.price,
           quantity: 1,
         ),
       );
@@ -69,9 +84,11 @@ class Cart with ChangeNotifier {
     if (_order[productId]!.quantity > 1) {
       _order.update(
         productId,
-        (cartItem) => CartItem(
+        (cartItem) => CartItem.priced(
             id: cartItem.id,
-            product: cartItem.product,
+            productID: cartItem.productID,
+            productTitle: cartItem.productTitle,
+            price: cartItem.price,
             quantity: cartItem.quantity - 1),
       );
     } else {
