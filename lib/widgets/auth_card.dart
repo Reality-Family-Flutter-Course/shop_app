@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shop_app/models/http_exception.dart';
+import 'package:shop_app/providers/auth.dart';
+import 'package:shop_app/screens/products_overview_screen.dart';
 
 class AuthCard extends StatefulWidget {
-  AuthCard({Key? key}) : super(key: key);
+  const AuthCard({Key? key}) : super(key: key);
 
   @override
   State<AuthCard> createState() => _AuthCardState();
@@ -10,12 +14,30 @@ class AuthCard extends StatefulWidget {
 class _AuthCardState extends State<AuthCard> {
   final GlobalKey<FormState> _formKey = GlobalKey();
   AuthMode _authMode = AuthMode.login;
-  Map<String, String> _authData = {
+  final Map<String, String> _authData = {
     "email": "",
     "password": "",
   };
   final _passwordController = TextEditingController();
   bool _isLoading = false;
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Произошла ошибка"),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+            child: const Text("ОК"),
+          ),
+        ],
+      ),
+    );
+  }
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) {
@@ -27,13 +49,39 @@ class _AuthCardState extends State<AuthCard> {
     setState(() {
       _isLoading = true;
     });
-    if (_authMode == AuthMode.login) {
-      // await login
-    } else {
-      // await register
-    }
+    try {
+      if (_authMode == AuthMode.login) {
+        await Provider.of<Auth>(context, listen: false).auth(
+          _authData["email"] ?? "",
+          _authData["password"] ?? "",
+        );
+      } else {
+        await Provider.of<Auth>(context, listen: false).singup(
+          _authData["email"] ?? "",
+          _authData["password"] ?? "",
+        );
+      }
 
-    await Future.delayed(Duration(milliseconds: 500));
+      Navigator.of(context)
+          .pushReplacementNamed(ProductsOverviewScreen.routeName);
+    } on HttpException catch (error) {
+      var errorMessage =
+          "${_authMode == AuthMode.login ? "Вход" : "Регистрации"} не выполнен";
+      if (error.toString().contains("EMAIL_NOT_FOUND")) {
+        errorMessage = "Учетной записи с данной почтой не найдено";
+      } else if (error.toString().contains("INVALID_PASSWORD")) {
+        errorMessage = "Некорректный пароль";
+      } else if (error.toString().contains("EMAIL_EXISTS")) {
+        errorMessage = "Учетная запись с данной почтой уже существует";
+      }
+
+      _showErrorDialog(errorMessage);
+    } catch (error) {
+      final errorMessage =
+          "Во время ${_authMode == AuthMode.login ? "входе" : "регистрации"} произошла ошибка.\nПопробуйте позже";
+
+      _showErrorDialog(errorMessage);
+    }
 
     setState(() {
       _isLoading = false;

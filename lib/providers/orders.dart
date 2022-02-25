@@ -3,8 +3,6 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 
 import 'package:http/http.dart' as http;
-import 'package:shop_app/providers/product.dart';
-import 'package:shop_app/providers/products.dart';
 
 import './cart.dart';
 

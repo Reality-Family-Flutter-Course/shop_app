@@ -21,7 +21,7 @@ class LogoWidget extends StatelessWidget {
               offset: Offset(0, 2),
             )
           ]),
-      child: Text(
+      child: const Text(
         "MyShop",
         style: TextStyle(
           color: Colors.white,
