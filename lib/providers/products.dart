@@ -118,7 +118,21 @@ class Products with ChangeNotifier {
   }
 
   void deleteProduct(String id) {
+    final url =
+        "https://flutter-synergy-store-default-rtdb.europe-west1.firebasedatabase.app/products/$id.json";
+
+    final extingProductIndex = _items.indexWhere((prod) => prod.id == id);
+    Product? extingProduct = _items[extingProductIndex];
+
+    http.delete(Uri.parse(url)).then((response) {
+      if (response.statusCode >= 400) {}
+      extingProduct = null;
+    }).catchError((error) {
+      _items.insert(extingProductIndex, extingProduct!);
+      notifyListeners();
+    });
     _items.removeWhere((product) => product.id == id);
+
     notifyListeners();
   }
 
