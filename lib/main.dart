@@ -34,26 +34,30 @@ class MyApp extends StatelessWidget {
           create: (context) => Auth(),
         ),
       ],
-      child: MaterialApp(
-        title: 'MyShop',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSwatch(
-            primarySwatch: Colors.purple,
-          ).copyWith(
-            secondary: Colors.deepOrange,
+      child: Consumer<Auth>(
+        builder: (cxt, auth, _) => MaterialApp(
+          title: 'MyShop',
+          theme: ThemeData(
+            colorScheme: ColorScheme.fromSwatch(
+              primarySwatch: Colors.purple,
+            ).copyWith(
+              secondary: Colors.deepOrange,
+            ),
           ),
+          home:
+              auth.isAuth ? const ProductsOverviewScreen() : const AuthScreen(),
+          routes: {
+            ProductsOverviewScreen.routeName: (context) =>
+                const ProductsOverviewScreen(),
+            ProductDetailScreen.routeName: (context) =>
+                const ProductDetailScreen(),
+            CartScreen.routeName: (context) => const CartScreen(),
+            OrdersScreen.routeName: (context) => const OrdersScreen(),
+            UserProductsScreen.routeName: (context) =>
+                const UserProductsScreen(),
+            EditProductScreen.routeName: (context) => const EditProductScreen(),
+          },
         ),
-        home: const AuthScreen(),
-        routes: {
-          ProductsOverviewScreen.routeName: (context) =>
-              const ProductsOverviewScreen(),
-          ProductDetailScreen.routeName: (context) =>
-              const ProductDetailScreen(),
-          CartScreen.routeName: (context) => const CartScreen(),
-          OrdersScreen.routeName: (context) => const OrdersScreen(),
-          UserProductsScreen.routeName: (context) => const UserProductsScreen(),
-          EditProductScreen.routeName: (context) => const EditProductScreen(),
-        },
       ),
     );
   }

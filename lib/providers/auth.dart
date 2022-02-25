@@ -10,6 +10,20 @@ class Auth with ChangeNotifier {
   DateTime? _expireDate;
   String? _userID;
 
+  bool get isAuth {
+    return token != null;
+  }
+
+  String? get token {
+    if (_expireDate != null &&
+        _expireDate!.isAfter(DateTime.now()) &&
+        _token != null) {
+      return _token;
+    } else {
+      return null;
+    }
+  }
+
   Future<void> singup(String email, String password) async {
     const url =
         "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyCzMZLVvmJkbKrN9NBhotYFeX3KwduM9z4";
@@ -30,6 +44,16 @@ class Auth with ChangeNotifier {
       if (responseData["error"] != null) {
         throw HttpException(responseData["error"]["message"]);
       }
+
+      _token = responseData["idToken"];
+      _expireDate = DateTime.now().add(
+        Duration(
+          seconds: int.parse(responseData["expiresIn"]),
+        ),
+      );
+      _userID = responseData["localId"];
+
+      notifyListeners();
     } catch (error) {
       print(error.toString());
       throw error;
@@ -56,6 +80,16 @@ class Auth with ChangeNotifier {
       if (responseData["error"] != null) {
         throw HttpException(responseData["error"]["message"]);
       }
+
+      _token = responseData["idToken"];
+      _expireDate = DateTime.now().add(
+        Duration(
+          seconds: int.parse(responseData["expiresIn"]),
+        ),
+      );
+      _userID = responseData["localId"];
+
+      notifyListeners();
     } catch (error) {
       print(error.toString());
       throw error;
