@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 import 'product.dart';
 
@@ -63,15 +65,25 @@ class Products with ChangeNotifier {
   // }
 
   void addProduct(Product product) {
+    const url =
+        "https://flutter-synergy-store-default-rtdb.europe-west1.firebasedatabase.app/products.json";
+    http.post(Uri.parse(url),
+        body: json.encode({
+          "title": product.title,
+          "description": product.description,
+          "imageUrl": product.imageUrl,
+          "price": product.price,
+          "isFavorite": product.isFavorite,
+        }));
+
     Product newProduct = Product(
-      id: "p$index",
+        id: json.decode(response.body)["name"],
       title: product.title,
       description: product.description,
       price: product.price,
       imageUrl: product.imageUrl,
     );
     _items.add(newProduct);
-    index++;
     notifyListeners();
   }
 
