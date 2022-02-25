@@ -21,12 +21,12 @@ class Product with ChangeNotifier {
     this.isFavorite = false,
   });
 
-  void toggleFavoriteStatus() async {
+  void toggleFavoriteStatus(String authToken) async {
     final oldStatus = isFavorite;
     setFavValue(!oldStatus);
 
     final url =
-        "https://flutter-synergy-store-default-rtdb.europe-west1.firebasedatabase.app/products/$id.json";
+        "https://flutter-synergy-store-default-rtdb.europe-west1.firebasedatabase.app/products/$id.json?auth=$authToken";
 
     try {
       final response = await http.patch(
