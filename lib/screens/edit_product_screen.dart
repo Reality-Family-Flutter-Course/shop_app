@@ -52,7 +52,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     super.didChangeDependencies();
   }
 
-  void _saveProduct() {
+  void _saveProduct() async {
     if (_key.currentState!.validate()) {
       _key.currentState!.save();
 
@@ -61,7 +61,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
       });
 
       if (_newProduct.id == null) {
-        Provider.of<Products>(
+        await Provider.of<Products>(
           context,
           listen: false,
         )
@@ -85,23 +85,15 @@ class _EditProductScreenState extends State<EditProductScreen> {
               ],
             ),
           );
-        }).then(
-          (_) {
-            setState(() {
-              _isLoading = false;
-            });
-            Navigator.of(context).pop();
-          },
-        );
-      } else {
-        Provider.of<Products>(context, listen: false)
-            .updateProduct(_newProduct.id!, _newProduct);
-        setState(() {
-          _isLoading = false;
         });
-        Navigator.of(context).pop();
+      } else {
+        await Provider.of<Products>(context, listen: false)
+            .updateProduct(_newProduct.id!, _newProduct);
       }
-      // Navigator.of(context).pop();
+      setState(() {
+        _isLoading = false;
+      });
+      Navigator.of(context).pop();
     }
   }
 

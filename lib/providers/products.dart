@@ -96,9 +96,20 @@ class Products with ChangeNotifier {
     });
   }
 
-  void updateProduct(String id, Product product) {
+  Future<void> updateProduct(String id, Product product) async {
     final productIndex = _items.indexWhere((prod) => prod.id == id);
     if (productIndex >= 0) {
+      final url =
+          "https://flutter-synergy-store-default-rtdb.europe-west1.firebasedatabase.app/products/$id.json";
+      await http.patch(
+        Uri.parse(url),
+        body: json.encode({
+          "title": product.title,
+          "description": product.description,
+          "imageUrl": product.imageUrl,
+          "price": product.price,
+        }),
+      );
       _items[productIndex] = product;
       notifyListeners();
     } else {
