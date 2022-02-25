@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/foundation.dart';
+
+import 'package:http/http.dart' as http;
 
 class Product with ChangeNotifier {
   final String? id;
@@ -17,8 +21,30 @@ class Product with ChangeNotifier {
     this.isFavorite = false,
   });
 
-  void toggleFavoriteStatus() {
-    isFavorite = !isFavorite;
+  void toggleFavoriteStatus() async {
+    final oldStatus = isFavorite;
+    setFavValue(!oldStatus);
+
+    final url =
+        "https://flutter-synergy-store-default-rtdb.europe-west1.firebasedatabase.app/products/$id.json";
+
+    try {
+      final response = await http.patch(
+        Uri.parse(url),
+        body: json.encode({
+          "isFavorite": isFavorite,
+        }),
+      );
+      if (response.statusCode >= 400) {
+        setFavValue(oldStatus);
+      }
+    } catch (error) {
+      setFavValue(oldStatus);
+    }
+  }
+
+  void setFavValue(bool value) {
+    isFavorite = value;
     notifyListeners();
   }
 }
