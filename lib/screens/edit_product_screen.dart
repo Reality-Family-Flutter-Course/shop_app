@@ -68,7 +68,24 @@ class _EditProductScreenState extends State<EditProductScreen> {
             .addProduct(
           _newProduct,
         )
-            .then(
+            .catchError((error) {
+          return showDialog<void>(
+            context: context,
+            builder: (ctx) => AlertDialog(
+              title: const Text("Произошла ошибка"),
+              content: const Text(
+                  "Во время отправки нового товара произошла ошибка.\nПовторите попытку."),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                  },
+                  child: const Text("OK"),
+                )
+              ],
+            ),
+          );
+        }).then(
           (_) {
             setState(() {
               _isLoading = false;

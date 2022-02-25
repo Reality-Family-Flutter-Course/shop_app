@@ -78,7 +78,12 @@ class Products with ChangeNotifier {
         "isFavorite": product.isFavorite,
       }),
     )
-        .then((response) {
+        .catchError(
+      (error) {
+        print(error);
+        throw error;
+      },
+    ).then((response) {
       Product newProduct = Product(
         id: json.decode(response.body)["name"],
         title: product.title,
