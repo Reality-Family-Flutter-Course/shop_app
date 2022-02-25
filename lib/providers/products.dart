@@ -110,4 +110,17 @@ class Products with ChangeNotifier {
     _items.removeWhere((product) => product.id == id);
     notifyListeners();
   }
+
+  Future<void> fetchAndSetProducts() async {
+    const url =
+        "https://flutter-synergy-store-default-rtdb.europe-west1.firebasedatabase.app/products.json";
+
+    try {
+      final response = await http.get(Uri.parse(url));
+      print(response.body);
+    } catch (error) {
+      print(error);
+      throw error;
+    }
+  }
 }
