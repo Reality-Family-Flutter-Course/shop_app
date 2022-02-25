@@ -28,6 +28,7 @@ class _EditProductScreenState extends State<EditProductScreen> {
     imageUrl: "",
   );
   var _isInit = true;
+  var _isLoading = false;
 
   @override
   void dispose() {
@@ -55,13 +56,35 @@ class _EditProductScreenState extends State<EditProductScreen> {
     if (_key.currentState!.validate()) {
       _key.currentState!.save();
 
+      setState(() {
+        _isLoading = true;
+      });
+
       if (_newProduct.id == null) {
-        Provider.of<Products>(context, listen: false).addProduct(_newProduct);
+        Provider.of<Products>(
+          context,
+          listen: false,
+        )
+            .addProduct(
+          _newProduct,
+        )
+            .then(
+          (_) {
+            setState(() {
+              _isLoading = false;
+            });
+            Navigator.of(context).pop();
+          },
+        );
       } else {
         Provider.of<Products>(context, listen: false)
             .updateProduct(_newProduct.id!, _newProduct);
+        setState(() {
+          _isLoading = false;
+        });
+        Navigator.of(context).pop();
       }
-      Navigator.of(context).pop();
+      // Navigator.of(context).pop();
     }
   }
 
@@ -79,163 +102,66 @@ class _EditProductScreenState extends State<EditProductScreen> {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Form(
-          key: _key,
-          child: ListView(
-            children: [
-              TextFormField(
-                initialValue: _newProduct.title,
-                decoration: const InputDecoration(
-                  labelText: "Название",
-                ),
-                textInputAction: TextInputAction.next,
-                onFieldSubmitted: (value) {
-                  FocusScope.of(context).requestFocus(_priceFocusNode);
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Введите пожалуйста название";
-                  }
-                  return null;
-                },
-                onSaved: (newValue) {
-                  _newProduct = Product(
-                    id: _newProduct.id,
-                    title: newValue!,
-                    description: _newProduct.description,
-                    price: _newProduct.price,
-                    imageUrl: _newProduct.imageUrl,
-                    isFavorite: _newProduct.isFavorite,
-                  );
-                },
-              ),
-              TextFormField(
-                initialValue:
-                    _newProduct.price < 1 ? "" : _newProduct.price.toString(),
-                decoration: const InputDecoration(
-                  labelText: "Цена",
-                ),
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                textInputAction: TextInputAction.next,
-                focusNode: _priceFocusNode,
-                onFieldSubmitted: (value) {
-                  FocusScope.of(context).requestFocus(_descriptionFocusNode);
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Введите пожалуйста цену";
-                  }
-                  if (double.tryParse(value) == null) {
-                    return "Введите пожалуйста корректное значение";
-                  }
-                  if (double.parse(value) <= 0) {
-                    return "Введите пожалуйста корректную сумму";
-                  }
-                  return null;
-                },
-                onSaved: (newValue) {
-                  _newProduct = Product(
-                    id: _newProduct.id,
-                    title: _newProduct.title,
-                    description: _newProduct.description,
-                    price: double.parse(newValue!),
-                    imageUrl: _newProduct.imageUrl,
-                    isFavorite: _newProduct.isFavorite,
-                  );
-                },
-              ),
-              TextFormField(
-                initialValue: _newProduct.description,
-                decoration: const InputDecoration(
-                  labelText: "Описание",
-                ),
-                maxLines: 3,
-                keyboardType: TextInputType.multiline,
-                focusNode: _descriptionFocusNode,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Введите пожалуйста описание";
-                  }
-                  if (value.length < 10) {
-                    return "Описание должно быть более 10 символов";
-                  }
-                  return null;
-                },
-                onSaved: (newValue) {
-                  _newProduct = Product(
-                    id: _newProduct.id,
-                    title: _newProduct.title,
-                    description: newValue!,
-                    price: _newProduct.price,
-                    imageUrl: _newProduct.imageUrl,
-                    isFavorite: _newProduct.isFavorite,
-                  );
-                },
-              ),
-              Row(
-                children: [
-                  Container(
-                    width: 100,
-                    height: 100,
-                    margin: const EdgeInsets.only(
-                      top: 10,
-                      right: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        width: 1,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    child: _imageURLController.text.isEmpty
-                        ? Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Text(
-                                "Введите путь до фотографии",
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
-                          )
-                        : Image.network(
-                            _imageURLController.text,
-                            fit: BoxFit.cover,
-                          ),
-                  ),
-                  Expanded(
-                    child: TextFormField(
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : Padding(
+              padding: const EdgeInsets.all(10),
+              child: Form(
+                key: _key,
+                child: ListView(
+                  children: [
+                    TextFormField(
+                      initialValue: _newProduct.title,
                       decoration: const InputDecoration(
-                          labelText: "Ссылка на фотографию"),
-                      keyboardType: TextInputType.url,
-                      textInputAction: TextInputAction.done,
-                      controller: _imageURLController,
-                      onEditingComplete: () {
-                        if ((_imageURLController.text.isEmpty) ||
-                            (!_imageURLController.text.startsWith("http://") &&
-                                !_imageURLController.text
-                                    .startsWith("https://")) ||
-                            (!_imageURLController.text.endsWith(".png") &&
-                                !_imageURLController.text.endsWith(".jpg") &&
-                                !_imageURLController.text.endsWith(".jpeg"))) {
-                          return;
-                        }
-                        setState(() {});
+                        labelText: "Название",
+                      ),
+                      textInputAction: TextInputAction.next,
+                      onFieldSubmitted: (value) {
+                        FocusScope.of(context).requestFocus(_priceFocusNode);
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Введите пожалуйста ссылку фотографии";
+                          return "Введите пожалуйста название";
                         }
-                        if (!value.startsWith("http://") &&
-                            !value.startsWith("https://")) {
-                          return "Введите пожалуйста корректную ссылку на фотографию";
+                        return null;
+                      },
+                      onSaved: (newValue) {
+                        _newProduct = Product(
+                          id: _newProduct.id,
+                          title: newValue!,
+                          description: _newProduct.description,
+                          price: _newProduct.price,
+                          imageUrl: _newProduct.imageUrl,
+                          isFavorite: _newProduct.isFavorite,
+                        );
+                      },
+                    ),
+                    TextFormField(
+                      initialValue: _newProduct.price < 1
+                          ? ""
+                          : _newProduct.price.toString(),
+                      decoration: const InputDecoration(
+                        labelText: "Цена",
+                      ),
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
+                      textInputAction: TextInputAction.next,
+                      focusNode: _priceFocusNode,
+                      onFieldSubmitted: (value) {
+                        FocusScope.of(context)
+                            .requestFocus(_descriptionFocusNode);
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Введите пожалуйста цену";
                         }
-                        if (!value.endsWith(".png") &&
-                            !value.endsWith(".jpg") &&
-                            !value.endsWith(".jpeg")) {
-                          return "Введите пожалуйста корректную ссылку на фотографию";
+                        if (double.tryParse(value) == null) {
+                          return "Введите пожалуйста корректное значение";
+                        }
+                        if (double.parse(value) <= 0) {
+                          return "Введите пожалуйста корректную сумму";
                         }
                         return null;
                       },
@@ -244,19 +170,125 @@ class _EditProductScreenState extends State<EditProductScreen> {
                           id: _newProduct.id,
                           title: _newProduct.title,
                           description: _newProduct.description,
-                          price: _newProduct.price,
-                          imageUrl: newValue!,
+                          price: double.parse(newValue!),
+                          imageUrl: _newProduct.imageUrl,
                           isFavorite: _newProduct.isFavorite,
                         );
                       },
                     ),
-                  ),
-                ],
-              )
-            ],
-          ),
-        ),
-      ),
+                    TextFormField(
+                      initialValue: _newProduct.description,
+                      decoration: const InputDecoration(
+                        labelText: "Описание",
+                      ),
+                      maxLines: 3,
+                      keyboardType: TextInputType.multiline,
+                      focusNode: _descriptionFocusNode,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "Введите пожалуйста описание";
+                        }
+                        if (value.length < 10) {
+                          return "Описание должно быть более 10 символов";
+                        }
+                        return null;
+                      },
+                      onSaved: (newValue) {
+                        _newProduct = Product(
+                          id: _newProduct.id,
+                          title: _newProduct.title,
+                          description: newValue!,
+                          price: _newProduct.price,
+                          imageUrl: _newProduct.imageUrl,
+                          isFavorite: _newProduct.isFavorite,
+                        );
+                      },
+                    ),
+                    Row(
+                      children: [
+                        Container(
+                          width: 100,
+                          height: 100,
+                          margin: const EdgeInsets.only(
+                            top: 10,
+                            right: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              width: 1,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          child: _imageURLController.text.isEmpty
+                              ? Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: const [
+                                    Text(
+                                      "Введите путь до фотографии",
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                )
+                              : Image.network(
+                                  _imageURLController.text,
+                                  fit: BoxFit.cover,
+                                ),
+                        ),
+                        Expanded(
+                          child: TextFormField(
+                            decoration: const InputDecoration(
+                                labelText: "Ссылка на фотографию"),
+                            keyboardType: TextInputType.url,
+                            textInputAction: TextInputAction.done,
+                            controller: _imageURLController,
+                            onEditingComplete: () {
+                              if ((_imageURLController.text.isEmpty) ||
+                                  (!_imageURLController.text
+                                          .startsWith("http://") &&
+                                      !_imageURLController.text
+                                          .startsWith("https://")) ||
+                                  (!_imageURLController.text.endsWith(".png") &&
+                                      !_imageURLController.text
+                                          .endsWith(".jpg") &&
+                                      !_imageURLController.text
+                                          .endsWith(".jpeg"))) {
+                                return;
+                              }
+                              setState(() {});
+                            },
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return "Введите пожалуйста ссылку фотографии";
+                              }
+                              if (!value.startsWith("http://") &&
+                                  !value.startsWith("https://")) {
+                                return "Введите пожалуйста корректную ссылку на фотографию";
+                              }
+                              if (!value.endsWith(".png") &&
+                                  !value.endsWith(".jpg") &&
+                                  !value.endsWith(".jpeg")) {
+                                return "Введите пожалуйста корректную ссылку на фотографию";
+                              }
+                              return null;
+                            },
+                            onSaved: (newValue) {
+                              _newProduct = Product(
+                                id: _newProduct.id,
+                                title: _newProduct.title,
+                                description: _newProduct.description,
+                                price: _newProduct.price,
+                                imageUrl: newValue!,
+                                isFavorite: _newProduct.isFavorite,
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+              ),
+            ),
     );
   }
 }
