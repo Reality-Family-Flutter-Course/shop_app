@@ -46,6 +46,7 @@ class Products with ChangeNotifier {
         "description": product.description,
         "imageUrl": product.imageUrl,
         "price": product.price,
+        "creatorID": userID,
       }),
     )
         .catchError(
@@ -106,9 +107,11 @@ class Products with ChangeNotifier {
     extingProduct = null;
   }
 
-  Future<void> fetchAndSetProducts() async {
+  Future<void> fetchAndSetProducts({bool filterByUser = false}) async {
+    final filterString =
+        filterByUser ? '&orderBy="creatorID"&equalTo="$userID"' : "";
     var url =
-        "https://flutter-synergy-store-default-rtdb.europe-west1.firebasedatabase.app/products.json?auth=$authToken";
+        "https://flutter-synergy-store-default-rtdb.europe-west1.firebasedatabase.app/products.json?auth=$authToken$filterString";
 
     try {
       final response = await http.get(Uri.parse(url));
