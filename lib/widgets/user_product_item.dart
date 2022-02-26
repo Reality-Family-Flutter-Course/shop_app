@@ -35,11 +35,19 @@ class UserProductItem extends StatelessWidget {
             ),
           ),
           IconButton(
-            onPressed: () {
-              Provider.of<Products>(
-                context,
-                listen: false,
-              ).deleteProduct(product.id!);
+            onPressed: () async {
+              try {
+                await Provider.of<Products>(
+                  context,
+                  listen: false,
+                ).deleteProduct(product.id!);
+              } catch (error) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text("При удалении произошла ошибка!"),
+                  ),
+                );
+              }
             },
             icon: Icon(
               Icons.delete,
