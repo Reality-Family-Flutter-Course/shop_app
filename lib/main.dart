@@ -27,8 +27,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProxyProvider<Auth, Products>(
           create: (context) => Products.empty(),
           update: (context, auth, previousProducts) => Products(
-            authToken: auth.token!,
-            userID: auth.userID!,
+            authToken: auth.token ?? "",
+            userID: auth.userID ?? "",
             items: previousProducts == null ? [] : previousProducts.items,
           ),
         ),
@@ -38,8 +38,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProxyProvider<Auth, Orders>(
           create: (context) => Orders.empty(),
           update: (context, auth, previousOrders) => Orders(
-            authToken: auth.token!,
-            userID: auth.userID!,
+            authToken: auth.token ?? "",
+            userID: auth.userID ?? "",
             orders: previousOrders == null ? [] : previousOrders.orders,
           ),
         ),
@@ -57,6 +57,7 @@ class MyApp extends StatelessWidget {
           home:
               auth.isAuth ? const ProductsOverviewScreen() : const AuthScreen(),
           routes: {
+            AuthScreen.routeName: (context) => const AuthScreen(),
             ProductsOverviewScreen.routeName: (context) =>
                 const ProductsOverviewScreen(),
             ProductDetailScreen.routeName: (context) =>

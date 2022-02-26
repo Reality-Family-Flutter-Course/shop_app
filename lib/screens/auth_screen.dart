@@ -3,6 +3,8 @@ import 'package:shop_app/widgets/auth_card.dart';
 import 'package:shop_app/widgets/logo.dart';
 
 class AuthScreen extends StatelessWidget {
+  static const routeName = '/auth';
+
   const AuthScreen({Key? key}) : super(key: key);
 
   @override

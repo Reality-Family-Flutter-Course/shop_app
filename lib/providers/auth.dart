@@ -99,4 +99,11 @@ class Auth with ChangeNotifier {
       throw error;
     }
   }
+
+  void logout() {
+    _token = null;
+    _userID = null;
+    _expireDate = null;
+    notifyListeners();
+  }
 }
