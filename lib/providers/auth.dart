@@ -24,6 +24,10 @@ class Auth with ChangeNotifier {
     }
   }
 
+  String? get userID {
+    return _userID;
+  }
+
   Future<void> singup(String email, String password) async {
     const url =
         "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyCzMZLVvmJkbKrN9NBhotYFeX3KwduM9z4";

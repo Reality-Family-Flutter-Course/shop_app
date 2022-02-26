@@ -10,15 +10,18 @@ class Products with ChangeNotifier {
 
   List<Product> _items;
   final String authToken;
+  final String userID;
 
   Products({
     required this.authToken,
+    required this.userID,
     required List<Product> items,
   }) : _items = items;
 
   Products.empty()
       : _items = [],
-        authToken = "";
+        authToken = "",
+        userID = "";
 
   List<Product> get items {
     return [..._items];
@@ -43,7 +46,6 @@ class Products with ChangeNotifier {
         "description": product.description,
         "imageUrl": product.imageUrl,
         "price": product.price,
-        "isFavorite": product.isFavorite,
       }),
     )
         .catchError(
@@ -105,7 +107,7 @@ class Products with ChangeNotifier {
   }
 
   Future<void> fetchAndSetProducts() async {
-    final url =
+    var url =
         "https://flutter-synergy-store-default-rtdb.europe-west1.firebasedatabase.app/products.json?auth=$authToken";
 
     try {
@@ -114,6 +116,12 @@ class Products with ChangeNotifier {
       if (extractedData == null) {
         return;
       }
+
+      url =
+          "https://flutter-synergy-store-default-rtdb.europe-west1.firebasedatabase.app/userFavorites/$userID.json?auth=$authToken";
+      final favoriteResponse = await http.get(Uri.parse(url));
+      final favoriteData = json.decode(favoriteResponse.body);
+
       List<Product> loadedProducts = [];
       extractedData.forEach((prodID, prodData) {
         loadedProducts.add(Product(
@@ -122,7 +130,8 @@ class Products with ChangeNotifier {
           description: prodData["description"],
           imageUrl: prodData["imageUrl"],
           price: prodData["price"],
-          isFavorite: prodData["isFavorite"],
+          isFavorite:
+              favoriteData == null ? false : favoriteData[prodID] ?? false,
         ));
 
         _items = loadedProducts;
