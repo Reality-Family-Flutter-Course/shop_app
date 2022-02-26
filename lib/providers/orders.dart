@@ -24,15 +24,18 @@ class Orders with ChangeNotifier {
   List<OrderItem> _orders = [];
 
   final String authToken;
+  final String userID;
 
   Orders({
     required this.authToken,
+    required this.userID,
     required List<OrderItem> orders,
   }) : _orders = orders;
 
   Orders.empty()
       : _orders = [],
-        authToken = "";
+        authToken = "",
+        userID = "";
 
   List<OrderItem> get orders {
     return [..._orders];
@@ -40,7 +43,7 @@ class Orders with ChangeNotifier {
 
   Future<void> addOrder(List<CartItem> cartProducts, double total) async {
     final url =
-        "https://flutter-synergy-store-default-rtdb.europe-west1.firebasedatabase.app/orders.json?auth=$authToken";
+        "https://flutter-synergy-store-default-rtdb.europe-west1.firebasedatabase.app/orders/$userID.json?auth=$authToken";
     final timeStamp = DateTime.now();
 
     final response = await http.post(
@@ -74,7 +77,7 @@ class Orders with ChangeNotifier {
 
   Future<void> fetchAndSetOrders() async {
     final url =
-        "https://flutter-synergy-store-default-rtdb.europe-west1.firebasedatabase.app/orders.json?auth=$authToken";
+        "https://flutter-synergy-store-default-rtdb.europe-west1.firebasedatabase.app/orders/$userID.json?auth=$authToken";
 
     final response = await http.get(Uri.parse(url));
     final extractedOrders = json.decode(response.body) as Map<String, dynamic>?;
