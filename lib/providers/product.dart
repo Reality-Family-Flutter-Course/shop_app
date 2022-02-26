@@ -21,25 +21,27 @@ class Product with ChangeNotifier {
     this.isFavorite = false,
   });
 
-  void toggleFavoriteStatus() async {
+  void toggleFavoriteStatus(String authToken, String userID) async {
     final oldStatus = isFavorite;
     setFavValue(!oldStatus);
 
     final url =
-        "https://flutter-synergy-store-default-rtdb.europe-west1.firebasedatabase.app/products/$id.json";
+        "https://flutter-synergy-store-default-rtdb.europe-west1.firebasedatabase.app/userFavorites/$userID/$id.json?auth=$authToken";
 
     try {
-      final response = await http.patch(
+      final response = await http.put(
         Uri.parse(url),
-        body: json.encode({
-          "isFavorite": isFavorite,
-        }),
+        body: json.encode(
+          isFavorite,
+        ),
       );
       if (response.statusCode >= 400) {
         setFavValue(oldStatus);
+        debugPrint(json.decode(response.body));
       }
     } catch (error) {
       setFavValue(oldStatus);
+      debugPrint(error.toString());
     }
   }
 

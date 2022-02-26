@@ -3,8 +3,6 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 
 import 'package:http/http.dart' as http;
-import 'package:shop_app/providers/product.dart';
-import 'package:shop_app/providers/products.dart';
 
 import './cart.dart';
 
@@ -25,13 +23,27 @@ class OrderItem {
 class Orders with ChangeNotifier {
   List<OrderItem> _orders = [];
 
+  final String authToken;
+  final String userID;
+
+  Orders({
+    required this.authToken,
+    required this.userID,
+    required List<OrderItem> orders,
+  }) : _orders = orders;
+
+  Orders.empty()
+      : _orders = [],
+        authToken = "",
+        userID = "";
+
   List<OrderItem> get orders {
     return [..._orders];
   }
 
   Future<void> addOrder(List<CartItem> cartProducts, double total) async {
-    const url =
-        "https://flutter-synergy-store-default-rtdb.europe-west1.firebasedatabase.app/orders.json";
+    final url =
+        "https://flutter-synergy-store-default-rtdb.europe-west1.firebasedatabase.app/orders/$userID.json?auth=$authToken";
     final timeStamp = DateTime.now();
 
     final response = await http.post(
@@ -64,8 +76,8 @@ class Orders with ChangeNotifier {
   }
 
   Future<void> fetchAndSetOrders() async {
-    const url =
-        "https://flutter-synergy-store-default-rtdb.europe-west1.firebasedatabase.app/orders.json";
+    final url =
+        "https://flutter-synergy-store-default-rtdb.europe-west1.firebasedatabase.app/orders/$userID.json?auth=$authToken";
 
     final response = await http.get(Uri.parse(url));
     final extractedOrders = json.decode(response.body) as Map<String, dynamic>?;
