@@ -41,7 +41,7 @@ class _AuthCardState extends State<AuthCard>
         curve: Curves.fastOutSlowIn,
       ),
     );
-    _heightAnimation!.addListener(() => setState(() {}));
+    //_heightAnimation!.addListener(() => setState(() {}));
   }
 
   @override
@@ -127,8 +127,12 @@ class _AuthCardState extends State<AuthCard>
         borderRadius: BorderRadius.circular(10),
       ),
       elevation: 8,
-      child: SizedBox(
-        height: _heightAnimation!.value.height,
+      child: AnimatedBuilder(
+        animation: _heightAnimation!,
+        builder: (context, child) => SizedBox(
+          height: _heightAnimation!.value.height,
+          child: child,
+        ),
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
