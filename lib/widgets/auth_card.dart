@@ -11,7 +11,8 @@ class AuthCard extends StatefulWidget {
   State<AuthCard> createState() => _AuthCardState();
 }
 
-class _AuthCardState extends State<AuthCard> {
+class _AuthCardState extends State<AuthCard>
+    with SingleTickerProviderStateMixin {
   final GlobalKey<FormState> _formKey = GlobalKey();
   AuthMode _authMode = AuthMode.login;
   final Map<String, String> _authData = {
@@ -20,6 +21,34 @@ class _AuthCardState extends State<AuthCard> {
   };
   final _passwordController = TextEditingController();
   bool _isLoading = false;
+  AnimationController? _controller;
+  Animation<Size>? _heightAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 300),
+    );
+    _heightAnimation = Tween<Size>(
+      begin: Size(double.infinity, 260),
+      end: Size(double.infinity, 320),
+    ).animate(
+      CurvedAnimation(
+        parent: _controller!,
+        curve: Curves.fastOutSlowIn,
+      ),
+    );
+    _heightAnimation!.addListener(() => setState(() {}));
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _controller!.dispose();
+  }
 
   void _showErrorDialog(String message) {
     showDialog(
@@ -98,88 +127,95 @@ class _AuthCardState extends State<AuthCard> {
         borderRadius: BorderRadius.circular(10),
       ),
       elevation: 8,
-      child: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 25,
-              vertical: 15,
-            ),
-            child: Column(
-              children: [
-                TextFormField(
-                  decoration: const InputDecoration(labelText: "Почта"),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null ||
-                        value.isEmpty ||
-                        !value.contains("@")) {
-                      return "Некорректная почта";
-                    }
-                  },
-                  onSaved: (newValue) {
-                    _authData["email"] = newValue ?? "";
-                  },
-                ),
-                TextFormField(
-                  decoration: const InputDecoration(labelText: "Пароль"),
-                  obscureText: true,
-                  controller: _passwordController,
-                  validator: (value) {
-                    if (value == null || value.isEmpty || value.length < 5) {
-                      return "Некорректный пароль";
-                    }
-                  },
-                  onSaved: (newValue) {
-                    _authData["password"] = newValue ?? "";
-                  },
-                ),
-                if (_authMode == AuthMode.register)
+      child: SizedBox(
+        height: _heightAnimation!.value.height,
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 25,
+                vertical: 15,
+              ),
+              child: Column(
+                children: [
                   TextFormField(
-                    enabled: _authMode == AuthMode.register,
-                    decoration: const InputDecoration(
-                        labelText: "Подтверждение пароля"),
-                    obscureText: true,
-                    validator: _authMode == AuthMode.register
-                        ? (value) {
-                            if (value != _passwordController.text) {
-                              return "Пароли не совпадают";
-                            }
-                          }
-                        : null,
+                    decoration: const InputDecoration(labelText: "Почта"),
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (value) {
+                      if (value == null ||
+                          value.isEmpty ||
+                          !value.contains("@")) {
+                        return "Некорректная почта";
+                      }
+                    },
+                    onSaved: (newValue) {
+                      _authData["email"] = newValue ?? "";
+                    },
                   ),
-                const SizedBox(
-                  height: 20,
-                ),
-                !_isLoading
-                    ? ElevatedButton(
-                        onPressed: _submit,
-                        child: Text(_authMode == AuthMode.login
-                            ? "Войти"
-                            : "Зарегистрироваться"),
-                      )
-                    : const CircularProgressIndicator(),
-                TextButton(
-                  onPressed: () {
-                    setState(() {
+                  TextFormField(
+                    decoration: const InputDecoration(labelText: "Пароль"),
+                    obscureText: true,
+                    controller: _passwordController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty || value.length < 5) {
+                        return "Некорректный пароль";
+                      }
+                    },
+                    onSaved: (newValue) {
+                      _authData["password"] = newValue ?? "";
+                    },
+                  ),
+                  if (_authMode == AuthMode.register)
+                    TextFormField(
+                      enabled: _authMode == AuthMode.register,
+                      decoration: const InputDecoration(
+                          labelText: "Подтверждение пароля"),
+                      obscureText: true,
+                      validator: _authMode == AuthMode.register
+                          ? (value) {
+                              if (value != _passwordController.text) {
+                                return "Пароли не совпадают";
+                              }
+                            }
+                          : null,
+                    ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  !_isLoading
+                      ? ElevatedButton(
+                          onPressed: _submit,
+                          child: Text(_authMode == AuthMode.login
+                              ? "Войти"
+                              : "Зарегистрироваться"),
+                        )
+                      : const CircularProgressIndicator(),
+                  TextButton(
+                    onPressed: () {
                       switch (_authMode) {
                         case AuthMode.login:
-                          _authMode = AuthMode.register;
+                          setState(() {
+                            _authMode = AuthMode.register;
+                          });
+                          _controller!.forward();
                           break;
                         case AuthMode.register:
-                          _authMode = AuthMode.login;
+                          setState(() {
+                            _authMode = AuthMode.login;
+                          });
+                          _controller!.reverse();
                           break;
                       }
-                    });
-                  },
-                  child: Text(
-                    _authMode == AuthMode.login
-                        ? "У меня нет учетной записи"
-                        : "У меня есть учетная запись",
-                  ),
-                )
-              ],
+                    },
+                    child: Text(
+                      _authMode == AuthMode.login
+                          ? "У меня нет учетной записи"
+                          : "У меня есть учетная запись",
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
         ),
