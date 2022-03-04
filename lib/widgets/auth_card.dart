@@ -127,12 +127,10 @@ class _AuthCardState extends State<AuthCard>
         borderRadius: BorderRadius.circular(10),
       ),
       elevation: 8,
-      child: AnimatedBuilder(
-        animation: _heightAnimation!,
-        builder: (context, child) => SizedBox(
-          height: _heightAnimation!.value.height,
-          child: child,
-        ),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeIn,
+        height: _authMode == AuthMode.register ? 320 : 260,
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
