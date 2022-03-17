@@ -82,6 +82,8 @@ class Orders with ChangeNotifier {
     final response = await http.get(Uri.parse(url));
     final extractedOrders = json.decode(response.body) as Map<String, dynamic>?;
     if (extractedOrders == null) {
+      _orders = [];
+      notifyListeners();
       return;
     }
     final List<OrderItem> loadedOrders = [];

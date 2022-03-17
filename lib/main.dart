@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shop_app/models/route_transaction.dart';
 import 'package:shop_app/providers/auth.dart';
 import 'package:shop_app/providers/cart.dart';
 import 'package:shop_app/providers/orders.dart';
@@ -53,6 +54,12 @@ class MyApp extends StatelessWidget {
               primarySwatch: Colors.purple,
             ).copyWith(
               secondary: Colors.deepOrange,
+            ),
+            pageTransitionsTheme: PageTransitionsTheme(
+              builders: {
+                TargetPlatform.android: CustomPageTransactionBuilder(),
+                TargetPlatform.iOS: CustomPageTransactionBuilder(),
+              },
             ),
           ),
           home: auth.isAuth
